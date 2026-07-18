@@ -8,6 +8,13 @@ import 'providers/auth_provider.dart';
 import 'providers/booking_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/order_provider.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/bookings/bookings_screen.dart';
+import 'screens/products/products_screen.dart';
+import 'screens/messages/messages_screen.dart';
+import 'screens/profile/profile_screen.dart';
+import 'screens/auth/sign_in_screen.dart';
+import 'screens/auth/sign_up_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,49 +44,45 @@ class CaprichoVagaryApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
-        home: const HomePage(),
-        routes: AppRoutes.routes,
-        onGenerateRoute: AppRoutes.generateRoute,
+        home: Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            return authProvider.isAuthenticated
+                ? const MainNavigationScreen()
+                : const SignInScreen();
+          },
+        ),
+        routes: {
+          '/signin': (context) => const SignInScreen(),
+          '/signup': (context) => const SignUpScreen(),
+          '/home': (context) => const MainNavigationScreen(),
+        },
       ),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class MainNavigationScreen extends StatefulWidget {
+  const MainNavigationScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
+
+  static const List<Widget> _screens = [
+    HomeScreen(),
+    BookingsScreen(),
+    ProductsScreen(),
+    MessagesScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('CAPRICHO VAGARY'),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Welcome to CAPRICHO VAGARY',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            const Text('Your premium barber, fashion & booking platform'),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () => _showFeatures(context),
-              child: const Text('Explore Features'),
-            ),
-          ],
-        ),
-      ),
+      body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
@@ -109,35 +112,6 @@ class _HomePageState extends State<HomePage> {
             _selectedIndex = index;
           });
         },
-      ),
-    );
-  }
-
-  void _showFeatures(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('CAPRICHO VAGARY Features'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text('✂️ Barber Services'),
-              Text('👕 Clothing Sales'),
-              Text('🏠 House-Call Bookings'),
-              Text('💬 Customer Messaging'),
-              Text('📦 Product Management'),
-              Text('💳 Secure Payments'),
-              Text('📊 Order Tracking'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
       ),
     );
   }
